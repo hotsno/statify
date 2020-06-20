@@ -1,0 +1,24 @@
+{
+  "name": "statify",
+  "version": "1.0.0",
+  "description": "![Statify Logo](https://cdn.discordapp.com/avatars/723412441475580065/db86c5450510abb34d25874fd51f745d.webp?size=128)\r # statify \r Game stat Discord bot with support for multiple games.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akulakovsky/statify.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akulakovsky/statify/issues"
+  },
+  "homepage": "https://github.com/akulakovsky/statify#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "fortnite": "^4.3.2",
+    "request": "^2.88.2"
+  }
+}
