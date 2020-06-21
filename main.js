@@ -27,9 +27,10 @@ const helpEmbed = new Discord.MessageEmbed()
   .setColor('c362d9')
   .addFields(
   { name: 'Syntax :tools:', value: '`.s help <command>`', inline: true },
-  { name: 'Fortnite :wheelchair: ', value: '`.s fortnite <Epic name>, <platform>, <game mode>`', inline: true },
-  { name: 'Hypixel :regional_indicator_h:', value: '`.s hypixel <Minecraft username>`', inline: true },
+  { name: 'Fortnite :wheelchair: ', value: '`.s fortnite <Epic name>, <platform>, <game mode>` (commas necessary)', inline: true },
+  { name: 'Hypixel :regional_indicator_h:', value: '`.s hypixel <Minecraft username> <game mode>`', inline: true },
   { name: 'League of Legends :older_man:', value: '`.s lol <summoner name>`', inline: true },
+  { name: 'Call of Duty: Warzone :gun:', value: '`.s warzone <gamertag> <platform>`', inline: true },
   );
 
 // Sets bot's Discord status
@@ -82,6 +83,12 @@ function helpSyntax(args, msg) {
       break;
     case 'lol':
       msg.channel.send(config.lolHelp);
+      break;
+    case 'warzone':
+      msg.channel.send(config.warzoneHelp);
+      break;
+    case 'hypixel':
+      msg.channel.send(config.hypixelHelp);
       break;
   }
 }
