@@ -4,6 +4,7 @@ const config = require('./config.json');
 const private = require('./private.json');
 const token = private.BOT_TOKEN;
 const request = require('request'); // For LoL and TRN trackers
+const nconf = require('nconf'); // For storing user info
 const PREFIX = '.s';
 const games = ['fortnite', 'hypixel', 'lol', 'warzone', 'csgo'];
 
@@ -43,12 +44,12 @@ const helpEmbed = new Discord.MessageEmbed()
   .setColor('c362d9')
   .addFields(
   { name: 'Syntax :tools:', value: '`.s help <command>`', inline: true },
-  { name: 'Fortnite :wheelchair: ', value: '`.s fortnite <Epic name>, <platform>, <game mode>` (commas necessary)', inline: true },
-  { name: 'Hypixel :regional_indicator_h:', value: '`.s hypixel <Minecraft username> <game mode>`', inline: true },
-  { name: 'League of Legends :older_man:', value: '`.s lol <summoner name>`', inline: true },
-  { name: 'Call of Duty: Warzone :gun:', value: '`.s warzone <gamertag> <platform>`', inline: true },
-  { name: 'CS:GO :exploding_head:', value: '`.s csgo <Steam username>` (the one you login with)', inline: true },
-  { name: 'NOTE :bangang:', value: 'You can set your game info with `.s set <game> <syntax for the game>` and then just use `.s <game>`', inline: true },
+  { name: 'Fortnite <:Fortnite:724330015348490309>', value: '`.s fortnite <Epic name>, <platform>, <game mode>` (commas necessary)', inline: true },
+  { name: 'Hypixel <:Hypixel:724329557477425174>', value: '`.s hypixel <Minecraft username> <game mode>`', inline: true },
+  { name: 'League of Legends <:LoL:724329818195492989>', value: '`.s lol <summoner name>`', inline: true },
+  { name: 'Call of Duty: Warzone <:ModernWarfare:724329557515304961>', value: '`.s warzone <gamertag> <platform>`', inline: true },
+  { name: 'CS:GO <:C4:724329557817032744>', value: '`.s csgo <Steam username>` (the one you login with)', inline: true },
+  { name: 'Note: <a:kirby:724339509789065406>', value: 'You can set your default game info with `.s set <game> <syntax for the game>` and then just use `.s <game>`', inline: false },
   );
 
 // Sets bot's Discord status
@@ -128,27 +129,54 @@ function about(args, msg) {
 
 // Saves Discord user's username/other data needed to get their stats
 function set(args, msg) {
+  let username = null;
+  let platform = null;
+  let gamemode = null;
+  let game = null;
+
   if (!games.includes(args[2])) {
     msg.reply('you used incorrect syntax! Type `.s help set` for more info!');
     return;
   }
   switch (args[2]) {
     case 'fortnite':
-      msg.channel.send(config.fortniteHelp);
-      return;
+      msg.channel.send("**Note:** This command currently only works with one word usernames! Also make sure to **NOT** use commas when setting!");
+      username = args[3];
+      platform = args[4];
+      gamemode = args[5];
+      game = "fortnite";
+      break;
     case 'lol':
-      msg.channel.send(config.lolHelp);
-      return;
+      username = args[3];
+      game = "lol";
+      break;
     case 'warzone':
-      msg.channel.send(config.warzoneHelp);
-      return;
+      username = args[3];
+      platform = args[4];
+      game = "warzone";
+      break;;
     case 'hypixel':
-      msg.channel.send(config.hypixelHelp);
-      return;
+      username = args[3];
+      gamemode = args[4];
+      game = "hypixel";
+      break;
     case 'csgo':
-      msg.channel.send(config.hypixelHelp);
-      return;
-}
+      username = args[3];
+      game = "csgo";
+      break;
+  }
+  if(username === undefined || platform === undefined || gamemode === undefined) {
+    msg.reply(' you didn\'t use enough paramaters! Use the same syntax for `.s set <game>` as in `.s game`! Type `.s help <game>` for help.');
+    return;
+  }
+  
+  nconf.use('file', { file: '.userInfo.json' });
+  nconf.load();
+  let id = msg.member.user.id;
+  nconf.set(id + ":" + game + ":username", username);
+  if(platform != null) nconf.set(id + ":" + game + ":platform", platform);
+  if(gamemode != null) nconf.set(id + ":" + game + ":gamemode", gamemode);
+  nconf.save();
 }
 
 // Sends an embed with Fortnite stats
@@ -250,6 +278,9 @@ function hypixelTracker(args, msg) {
           .setFooter('Statify Game Stat Tracker', config.botPfp);
 
           msg.channel.send(embed);
+      }
+      else {
+        msg.reply("that user hasn't played SkyWars!")
       }
     }
   });
