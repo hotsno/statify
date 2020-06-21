@@ -10,7 +10,7 @@ const ft = new fortniteAPI(private.FORTNITE_API_KEY);
 const hypixel = require('hypixel');
 const ht = new hypixel({ key: private.HYPIXEL_API_KEY });
 const fs = require('fs');
-
+const games = ['fortnite', 'hypixel', 'lol', 'warzone', 'csgo'];
 
 const fortnitePlatformTypes = ['pc', 'psn', 'xbl'];
 const fortniteModeTypes = ['solo', 'duo', 'squad', 'lifetime'];
@@ -20,7 +20,7 @@ const aboutEmbed = new Discord.MessageEmbed()
   .setTitle('About Statify')
   .setAuthor('Statify', config.logoTransparent, config.glitchLink)
   .setDescription(config.about)
-  .setURL(config.glitchLink)
+  .setURL(config.glitchLink);
 
 const helpEmbed = new Discord.MessageEmbed()
   .setAuthor('Statify Help Menu', config.logoTransparent, config.rickroll)
@@ -51,6 +51,9 @@ bot.on('message', (msg) => {
     case 'about':
       about(args, msg);
       break;
+    case 'set':
+      set(args, msg);
+      break;
     case 'fortnite':
       fortniteTracker(msg);
       break;
@@ -60,9 +63,12 @@ bot.on('message', (msg) => {
     case 'hypixel':
       hypixelTracker(args, msg)
       break;
-      case 'warzone':
-        codTracker(args, msg)
-        break;
+    case 'warzone':
+      codTracker(args, msg)
+      break;
+    case 'csgo':
+      csTracker(args, msg);
+      break;
   }
 });
 
@@ -80,22 +86,47 @@ function helpSyntax(args, msg) {
   switch (args[2]) {
     case 'fortnite':
       msg.channel.send(config.fortniteHelp);
-      break;
+      return;
     case 'lol':
       msg.channel.send(config.lolHelp);
-      break;
+      return;
     case 'warzone':
       msg.channel.send(config.warzoneHelp);
-      break;
+      return;
     case 'hypixel':
       msg.channel.send(config.hypixelHelp);
-      break;
+      return;
+    case 'csgo':
+      msg.channel.send(config.csgoHelp);
+      return;
   }
+  msg.reply("that command doesn't exist!");
 }
 
 // Sends an about embed
 function about(args, msg) {
   msg.channel.send(aboutEmbed);
+}
+
+function set(args, msg) {
+  if (!games.includes(args[2])) {
+    msg.reply('you used incorrect syntax! Type `.s help set` for more info!');
+    return;
+  }
+  switch (args[2]) {
+    case 'fortnite':
+      msg.channel.send(config.fortniteHelp);
+      return;
+    case 'lol':
+      msg.channel.send(config.lolHelp);
+      return;
+    case 'warzone':
+      msg.channel.send(config.warzoneHelp);
+      return;
+    case 'hypixel':
+      msg.channel.send(config.hypixelHelp);
+      return;
+  }
 }
 
 // Sends an embed with Fortnite stats
@@ -451,7 +482,7 @@ function mode(array) {
 }
 
 // Sends an embed with Call of Duty stats
-async function codTracker(args, msg){
+async function codTracker(args, msg) {
 
   const codAPI = require('call-of-duty-api')( {platform: args[3]} );
 
@@ -483,6 +514,56 @@ async function codTracker(args, msg){
     console.log("Call of Duty error: " + err);  
   });  
 
+}
+
+// Sends an embed with CSGO stats
+function csTracker(args, msg) {
+  
+  // Gets user info from username
+  const options = {
+    url: 'https://public-api.tracker.gg/v2/csgo/standard/search?platform=steam&query=' + args[2],
+    headers: {
+      'TRN-Api-Key': private.TRN_API_KEY
+    }
+  };
+  request(options, function (error, response) { 
+    if (error) throw new Error(error);
+    let data = JSON.parse(response.body).data;
+    let userIdentifier = data[0].platformUserIdentifier;
+    
+    if(userIdentifier == undefined){
+      msg.channel.send('Error: Invalid steam username')
+    }
+
+    // Gets csgo data with userIdentifier
+    const options2 = {
+      url: 'https://public-api.tracker.gg/v2/csgo/standard/profile/steam/' + userIdentifier,
+      headers: {
+        'TRN-Api-Key': private.TRN_API_KEY
+      }
+    };
+    request(options2, function (error2, response2) { 
+      if (error) throw new Error(error);
+      let playerData = (JSON.parse(response2.body)).data.segments[0].stats;
+
+      let embed = new Discord.MessageEmbed()
+      .setColor('#00FF00')
+      .setTitle('CS:GO stats for ' + args[2])
+      .setAuthor('Statify', config.logoTransparent, config.glitchLink)
+      .addFields(
+        { name: 'K/D :dart:', value: playerData.kd.displayValue, inline: true },
+        { name: 'Kills :x:', value: playerData.kills.displayValue, inline: true },
+        { name: 'Time Played :stopwatch:', value: (playerData.timePlayed.value/3600).toFixed(1) + " hours", inline: true },
+        { name: 'Win % :trophy:', value: playerData.wlPercentage.value+"%", inline: true },
+        { name: 'Headshot % :exploding_head:', value: playerData.headshotPct.value+"%", inline: true },
+        { name: 'Shots Fired :gun:', value: playerData.shotsFired.displayValue, inline: true },
+        { name: 'Bombs Planted | Defused :bomb:', value: playerData.bombsPlanted.displayValue + " | " + playerData.bombsDefused.displayValue, inline: true },
+        // { name: 'Score / Minute :stopwatch:', value: all.scorePerMinute.toFixed(2), inline: true },
+        // { name: 'Games Played :game_die:', value: all.gamesPlayed, inline: true },
+      )
+      msg.channel.send(embed);
+    });
+  });
 }
 
 bot.login(token);
