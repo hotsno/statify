@@ -11,6 +11,7 @@ const hypixel = require('hypixel');
 const ht = new hypixel({ key: private.HYPIXEL_API_KEY });
 const fs = require('fs');
 
+
 const fortnitePlatformTypes = ['pc', 'psn', 'xbl'];
 const fortniteModeTypes = ['solo', 'duo', 'squad', 'lifetime'];
 
@@ -58,6 +59,9 @@ bot.on('message', (msg) => {
     case 'hypixel':
       hypixelTracker(args, msg)
       break;
+      case 'warzone':
+        codTracker(args, msg)
+        break;
   }
 });
 
@@ -132,7 +136,7 @@ function fortniteTracker(msg) {
   })
 }
 
-function hypixelTracker(args, msg) {
+function hypixelTracker(args, msg) {  
   ht.getPlayerByUsername(args[2], (err, player) => {
     if (err) {
       return console.info('Nope!');
@@ -278,6 +282,7 @@ function leagueStatsEmbed(msg, summonerBody, leagueJSON, matches, mostUsedChamp)
   msg.channel.send(leagueEmbed);
 }
 
+// LoL thing
 function ChIDToName(id) {
   switch(id){
     case 266: return "Aatrox"; break;
@@ -416,6 +421,7 @@ function ChIDToName(id) {
   }
 }
 
+// LoL thing
 function mode(array) {
     if(array.length == 0)
         return null;
@@ -435,6 +441,41 @@ function mode(array) {
         }
     }
     return maxEl;
+}
+
+// Sends an embed with Call of Duty stats
+async function codTracker(args, msg){
+
+  const codAPI = require('call-of-duty-api')( {platform: args[3]} );
+
+  await codAPI.login(private.COD_EMAIL, private.COD_PASSWORD).catch((err) => {
+    console.log(err);
+  });
+
+  codAPI.MWBattleData(args[2]).then((data) => {
+    let all = data.br_all;
+    let embed = new Discord.MessageEmbed()
+    .setColor('#00FF00')
+    .setTitle('Warzone stats for ' + args[2])
+    .setAuthor('Statify', config.logoTransparent, config.glitchLink)
+    .addFields(
+      { name: 'Wins :trophy:', value: all.wins, inline: true },
+      { name: 'Top :five:', value: all.topFive, inline: true },
+      { name: 'Top :two::five:', value: all.topTwentyFive, inline: true },
+      { name: 'K/D :dart:', value: all.kdRatio.toFixed(2), inline: true },
+      { name: 'Kills :x:', value: all.kills, inline: true },
+      { name: 'Deaths :skull:', value: all.deaths, inline: true },
+      { name: 'Revives :ambulance:', value: all.revives, inline: true },
+      { name: 'Score / Minute :stopwatch:', value: all.scorePerMinute.toFixed(2), inline: true },
+      { name: 'Games Played :game_die:', value: all.gamesPlayed, inline: true },
+    )
+    msg.channel.send(embed);
+
+  }).catch(err => {
+    msg.channel.send(err);
+    console.log("Call of Duty error: " + err);  
+  });  
+
 }
 
 bot.login(token);
