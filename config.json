@@ -6,5 +6,6 @@
   "fortniteHelp": "Syntax for Fortnite stats: `.s fortnite <Epic name>, <platform>, <game mode>`\nPlatform types: `psn, xbl, pc` (psn = PS4; xbl = Xbox One; pc = PC)\nGame mode types: `solo, duo, squad, lifetime`",
   "lolHelp": "Syntax for Leauge of Legends stats: `.s lol <summoner name>`. Currently only works for NA.",
   "warzoneHelp": "Syntax for CoD: Warzone stats: `.s warzone <gamertag> <platform>`.\nPlatform types: `xbl, battle` (xbl = Xbox; battle = Battle.net / Blizzard)",
-  "hypixelHelp": "Syntax for Hypixel stats: `.s hypixel <Minecraft username> <game mode>`.\nGame mode types: `skywars`"
+  "hypixelHelp": "Syntax for Hypixel stats: `.s hypixel <Minecraft username> <game mode>`.\nGame mode types: `skywars`",
+  "csgoHelp": "Syntax for CS:GO stats: `.s csgo <Steam username>` (the one you login with)."
 }
