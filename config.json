@@ -3,6 +3,8 @@
   "logoTransparent": "https://cdn.discordapp.com/avatars/723412441475580065/db86c5450510abb34d25874fd51f745d.webp?size=128",
   "glitchLink": "https://glitch.com/edit/#!/statify-bot-beta-ak",
   "about": "Statify allows you to quickly and easily check your stats for a variety of games.",
-  "fortniteHelp": "Syntax for Fortnite stats: `.s fortnite <Epic name>, <platform>, <game mode>`\nPlatform types: `psn, xbl, pc`\nGame mode types: `solo, duo, squad, lifetime`",
-  "lolHelp": "Syntax for Leauge of Legends stats: `.s lol <summoner name>`. Currently only works for NA."
+  "fortniteHelp": "Syntax for Fortnite stats: `.s fortnite <Epic name>, <platform>, <game mode>`\nPlatform types: `psn, xbl, pc` (psn = PS4; xbl = Xbox One; pc = PC)\nGame mode types: `solo, duo, squad, lifetime`",
+  "lolHelp": "Syntax for Leauge of Legends stats: `.s lol <summoner name>`. Currently only works for NA.",
+  "warzoneHelp": "Syntax for CoD: Warzone stats: `.s warzone <gamertag> <platform>`.\nPlatform types: `xbl, battle` (xbl = Xbox; battle = Battle.net / Blizzard)",
+  "hypixelHelp": "Syntax for Hypixel stats: `.s hypixel <Minecraft username> <game mode>`.\nGame mode types: `skywars`"
 }
