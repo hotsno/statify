@@ -7,6 +7,9 @@ const PREFIX = '.s';
 const request = require('request');
 const fortniteAPI = require('fortnite');
 const ft = new fortniteAPI(private.FORTNITE_API_KEY);
+const hypixel = require('hypixel');
+const ht = new hypixel({ key: private.HYPIXEL_API_KEY });
+const fs = require('fs');
 
 const fortnitePlatformTypes = ['pc', 'psn', 'xbl'];
 const fortniteModeTypes = ['solo', 'duo', 'squad', 'lifetime'];
@@ -24,9 +27,9 @@ const helpEmbed = new Discord.MessageEmbed()
   .addFields(
   { name: 'Syntax :tools:', value: '`.s help <command>`', inline: true },
   { name: 'Fortnite :wheelchair: ', value: '`.s fortnite <Epic name>, <platform>, <game mode>`', inline: true },
-  { name: 'Hypixel :regional_indicator_h:', value: '`.s hypixel <bruh moment>`', inline: true },
+  { name: 'Hypixel :regional_indicator_h:', value: '`.s hypixel <Minecraft username>`', inline: true },
   { name: 'League of Legends :older_man:', value: '`.s lol <summoner name>`', inline: true },
-  )
+  );
 
 // Sets bot's Discord status
 bot.on('ready', () => {
@@ -51,6 +54,9 @@ bot.on('message', (msg) => {
       break;
     case 'lol':
       lolTracker(args, msg);
+      break;
+    case 'hypixel':
+      hypixelTracker(args, msg)
       break;
   }
 });
@@ -126,8 +132,62 @@ function fortniteTracker(msg) {
   })
 }
 
+function hypixelTracker(args, msg) {
+  ht.getPlayerByUsername(args[2], (err, player) => {
+    if (err) {
+      return console.info('Nope!');
+    }
+    if(args[3] === "skywars") {
+      if(player.stats && player.stats.SkyWars) {
+        let skyKills = player.stats.SkyWars.kills;
+        let skyDeaths = player.stats.SkyWars.deaths;
+        let skyKD = skyKills / skyDeaths;
+        let skyWins = player.stats.SkyWars.wins;
+        let skyLosses = player.stats.SkyWars.losses;
+        let skySoloNormalKills = player.stats.SkyWars.kills_solo_normal;
+        let skySoloNormalDeaths = player.stats.SkyWars.deaths_solo_normal;
+        let skySoloNormalKD = skySoloNormalKills / skySoloNormalDeaths;
+        let skySoloNormalWins = player.stats.SkyWars.wins_solo_normal;
+        let skySoloNormalLosses = player.stats.SkyWars.losses_solo_normal;
+        let skySoloInsaneKills = player.stats.SkyWars.kills_solo_insane;
+        let skySoloInsaneDeaths = player.stats.SkyWars.deaths_solo_insane;
+        let skySoloInsaneKD = skySoloInsaneKills / skySoloInsaneDeaths;
+        let skySoloInsaneWins = player.stats.SkyWars.wins_solo_insane;
+        let skySoloInsaneLosses = player.stats.SkyWars.losses_solo_insane;
+
+        let embed = new Discord.MessageEmbed()
+          .setColor('#00FF00')
+          .setTitle('Hypixel SkyWars Stats for ' + args[2])
+          .setAuthor('Statify', config.logoTransparent, config.glitchLink)
+          .addFields(
+          { name: 'Category:', value: ':bangbang:LIFETIME STATS:bangbang:', inline: false },
+          { name: 'Kills :x:', value: skyKills, inline: true },
+          { name: 'Deaths :dizzy_face:', value: skyDeaths, inline: true  },
+          { name: 'K/D :dart:', value: skyKD.toFixed(2), inline: true },
+          { name: 'Wins :trophy:', value: skyWins, inline: true },
+          { name: 'Losses :no_entry_sign:', value: skyLosses, inline: true },
+          { name: 'Category:', value: ':bangbang:SOLO NORMAL STATS:bangbang:', inline: false },
+          { name: 'Solo Normal Kills :x:', value: skySoloNormalKills, inline: true },
+          { name: 'Solo Normal Deaths :dizzy_face:', value: skySoloNormalDeaths, inline: true  },
+          { name: 'Solo Normal K/D :dart:', value: skySoloNormalKD.toFixed(2), inline: true },
+          { name: 'Solo Normal Wins :trophy:', value: skySoloNormalWins, inline: true },
+          { name: 'Solo Normal Losses :no_entry_sign:', value: skySoloNormalLosses, inline: true },
+          { name: 'Category:', value: ':bangbang:SOLO INSANE STATS:bangbang:', inline: false },
+          { name: 'Solo Insane Kills :x:', value: skySoloInsaneKills, inline: true },
+          { name: 'Solo Insane Deaths :dizzy_face:', value: skySoloInsaneDeaths, inline: true  },
+          { name: 'Solo Insane K/D :dart:', value: skySoloInsaneKD.toFixed(2), inline: true },
+          { name: 'Solo Insane Wins :trophy:', value: skySoloInsaneWins, inline: true },
+          { name: 'Solo Insane Losses :no_entry_sign:', value: skySoloInsaneLosses, inline: true },
+          );
+
+          msg.channel.send(embed);
+      }
+    }
+  });
+}
+
 // Gets stats from League of Legends API
-function lolTracker(args,msg) {
+function lolTracker(args, msg) {
   var request = require('request');
   //   var region = args[2];
   var name = args[2];
