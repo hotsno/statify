@@ -1,20 +1,35 @@
 const Discord = require('discord.js');
+const bot = new Discord.Client();
 const config = require('./config.json');
 const private = require('./private.json');
 const token = private.BOT_TOKEN;
-const bot = new Discord.Client();
+const request = require('request'); // For LoL and TRN trackers
 const PREFIX = '.s';
-const request = require('request');
-const fortniteAPI = require('fortnite');
-const ft = new fortniteAPI(private.FORTNITE_API_KEY);
-const hypixel = require('hypixel');
-const ht = new hypixel({ key: private.HYPIXEL_API_KEY });
-const fs = require('fs');
 const games = ['fortnite', 'hypixel', 'lol', 'warzone', 'csgo'];
 
+// For League of Legends
+const lolAPIKey = private.LEAGUE_API_KEY;
+
+// For CoD: Warzone
+const codEmail = private.COD_EMAIL;
+const codPassword = private.COD_PASSWORD;
+
+// For TRN (CS:GO)
+const trnAPIKey = private.TRN_API_KEY;
+
+// For Hypixel
+const hypixelAPIKey = private.HYPIXEL_API_KEY;
+const hypixelAPI = require('hypixel');
+const ht = new hypixelAPI({ key: hypixelAPIKey });
+
+// For Fortnite
+const fortniteAPIKey = private.FORTNITE_API_KEY;
+const fortniteAPI = require('fortnite');
+const ft = new fortniteAPI(fortniteAPIKey);
 const fortnitePlatformTypes = ['pc', 'psn', 'xbl'];
 const fortniteModeTypes = ['solo', 'duo', 'squad', 'lifetime'];
 
+// Sent with .s about command
 const aboutEmbed = new Discord.MessageEmbed()
   .setColor('#0099ff')
   .setTitle('About Statify')
@@ -22,6 +37,7 @@ const aboutEmbed = new Discord.MessageEmbed()
   .setDescription(config.about)
   .setURL(config.glitchLink);
 
+// Sent with .s help command
 const helpEmbed = new Discord.MessageEmbed()
   .setAuthor('Statify Help Menu', config.logoTransparent, config.rickroll)
   .setColor('c362d9')
@@ -31,6 +47,8 @@ const helpEmbed = new Discord.MessageEmbed()
   { name: 'Hypixel :regional_indicator_h:', value: '`.s hypixel <Minecraft username> <game mode>`', inline: true },
   { name: 'League of Legends :older_man:', value: '`.s lol <summoner name>`', inline: true },
   { name: 'Call of Duty: Warzone :gun:', value: '`.s warzone <gamertag> <platform>`', inline: true },
+  { name: 'CS:GO :exploding_head:', value: '`.s csgo <Steam username>` (the one you login with)', inline: true },
+  { name: 'NOTE :bangang:', value: 'You can set your game info with `.s set <game> <syntax for the game>` and then just use `.s <game>`', inline: true },
   );
 
 // Sets bot's Discord status
@@ -108,6 +126,7 @@ function about(args, msg) {
   msg.channel.send(aboutEmbed);
 }
 
+// Saves Discord user's username/other data needed to get their stats
 function set(args, msg) {
   if (!games.includes(args[2])) {
     msg.reply('you used incorrect syntax! Type `.s help set` for more info!');
@@ -126,7 +145,10 @@ function set(args, msg) {
     case 'hypixel':
       msg.channel.send(config.hypixelHelp);
       return;
-  }
+    case 'csgo':
+      msg.channel.send(config.hypixelHelp);
+      return;
+}
 }
 
 // Sends an embed with Fortnite stats
@@ -150,16 +172,18 @@ function fortniteTracker(msg) {
     let stats = data.stats[mode];
 
     let embed = new Discord.MessageEmbed()
-      .setColor('#00FF00')
-      .setTitle('Fortnite ' + mode + ' stats for ' + data.username)
+      .setColor('#0099ff')
+      .setTitle('<:Fortnite:724330015348490309> Fortnite ' + mode.charAt(0).toUpperCase() + mode.slice(1) + ' Stats for ' + data.username) // Weird code capitalizes game mode
       .setAuthor('Statify', config.logoTransparent, config.glitchLink)
       .addFields(
-        { name: 'Wins :trophy:', value: stats.wins, inline: true },
+        { name: 'Wins <:VictoryRoyale:724325367338237973>', value: stats.wins, inline: true },
         { name: 'Top :five:', value: stats.top_5, inline: true },
         { name: 'Top :two::five:', value: stats.top_25, inline: true },
         { name: 'K/D :dart:', value: stats.kd, inline: true },
         { name: 'Kills :x:', value: stats.kills, inline: true },
       )
+      .setTimestamp()
+      .setFooter('Statify Game Stat Tracker', config.botPfp);
 
       msg.channel.send(embed);
 
@@ -174,6 +198,7 @@ function fortniteTracker(msg) {
   })
 }
 
+// Sends an embed with Hypixel stats
 function hypixelTracker(args, msg) {  
   ht.getPlayerByUsername(args[2], (err, player) => {
     if (err) {
@@ -198,29 +223,31 @@ function hypixelTracker(args, msg) {
         let skySoloInsaneLosses = player.stats.SkyWars.losses_solo_insane;
 
         let embed = new Discord.MessageEmbed()
-          .setColor('#00FF00')
-          .setTitle('Hypixel SkyWars Stats for ' + args[2])
+          .setColor('#0099ff')
+          .setTitle('<:Hypixel:724329557477425174> Hypixel SkyWars Stats for ' + args[2])
           .setAuthor('Statify', config.logoTransparent, config.glitchLink)
           .addFields(
-          { name: 'Category:', value: ':bangbang:LIFETIME STATS:bangbang:', inline: false },
+          { name: '<:blank:724334110189027331>', value: '<a:right:724332733941415997>Lifetime Stats<a:left:724332733936959549>', inline: false },
           { name: 'Kills :x:', value: skyKills, inline: true },
           { name: 'Deaths :dizzy_face:', value: skyDeaths, inline: true  },
           { name: 'K/D :dart:', value: skyKD.toFixed(2), inline: true },
           { name: 'Wins :trophy:', value: skyWins, inline: true },
           { name: 'Losses :no_entry_sign:', value: skyLosses, inline: true },
-          { name: 'Category:', value: ':bangbang:SOLO NORMAL STATS:bangbang:', inline: false },
+          { name: '<:blank:724334110189027331>', value: '<a:right:724332733941415997>Solo Normal Stats<a:left:724332733936959549>', inline: false },
           { name: 'Solo Normal Kills :x:', value: skySoloNormalKills, inline: true },
           { name: 'Solo Normal Deaths :dizzy_face:', value: skySoloNormalDeaths, inline: true  },
           { name: 'Solo Normal K/D :dart:', value: skySoloNormalKD.toFixed(2), inline: true },
           { name: 'Solo Normal Wins :trophy:', value: skySoloNormalWins, inline: true },
           { name: 'Solo Normal Losses :no_entry_sign:', value: skySoloNormalLosses, inline: true },
-          { name: 'Category:', value: ':bangbang:SOLO INSANE STATS:bangbang:', inline: false },
+          { name: '<:blank:724334110189027331>', value: '<a:right:724332733941415997>Solo Insane Stats<a:left:724332733936959549>', inline: false },
           { name: 'Solo Insane Kills :x:', value: skySoloInsaneKills, inline: true },
           { name: 'Solo Insane Deaths :dizzy_face:', value: skySoloInsaneDeaths, inline: true  },
           { name: 'Solo Insane K/D :dart:', value: skySoloInsaneKD.toFixed(2), inline: true },
           { name: 'Solo Insane Wins :trophy:', value: skySoloInsaneWins, inline: true },
           { name: 'Solo Insane Losses :no_entry_sign:', value: skySoloInsaneLosses, inline: true },
-          );
+          )
+          .setTimestamp()
+          .setFooter('Statify Game Stat Tracker', config.botPfp);
 
           msg.channel.send(embed);
       }
@@ -237,7 +264,7 @@ function lolTracker(args, msg) {
   // Getting summoner info from SUMMONER-V4 API
   var options = {
     'method': 'GET',
-    'url': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + name + '?api_key=' + private.LEAGUE_API_KEY,
+    'url': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + name + '?api_key=' + lolAPIKey,
   };
   request(options, function (error, response) { 
     if (error) throw new Error(error);
@@ -256,7 +283,7 @@ function lolTracker(args, msg) {
     // Getting match info/ history from MATCH-V4 API
     var options2 = {
       'method': 'GET',
-      'url': 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?api_key=' + private.LEAGUE_API_KEY,
+      'url': 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?api_key=' + lolAPIKey,
     };
     request(options2, function (error, response2) { 
       if (error) throw new Error(error);
@@ -279,7 +306,7 @@ function lolTracker(args, msg) {
       // Gets info from LEAGUE-V4 API
       var options3 = {
         'method': 'GET',
-        'url': 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerId + '?api_key=' + private.LEAGUE_API_KEY,
+        'url': 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerId + '?api_key=' + lolAPIKey,
       };
       request(options3, function (error, response3) { 
         if (error) throw new Error(error);
@@ -302,7 +329,7 @@ function lolTracker(args, msg) {
 function leagueStatsEmbed(msg, summonerBody, leagueJSON, matches, mostUsedChamp) {
   var leagueEmbed = new Discord.MessageEmbed()
   .setColor('#0099ff')
-  .setTitle('League of Legends Stats')
+  .setTitle('<:LoL:724329818195492989> League of Legends Stats')
   .setAuthor('Statify', config.logoTransparent, config.glitchLink)
   .addField('Name', summonerBody.name);
   
@@ -486,15 +513,15 @@ async function codTracker(args, msg) {
 
   const codAPI = require('call-of-duty-api')( {platform: args[3]} );
 
-  await codAPI.login(private.COD_EMAIL, private.COD_PASSWORD).catch((err) => {
+  await codAPI.login(codEmail, codPassword).catch((err) => {
     console.log(err);
   });
 
   codAPI.MWBattleData(args[2]).then((data) => {
     let all = data.br_all;
     let embed = new Discord.MessageEmbed()
-    .setColor('#00FF00')
-    .setTitle('Warzone stats for ' + args[2])
+    .setColor('#0099ff')
+    .setTitle('<:ModernWarfare:724329557515304961> Warzone stats for ' + args[2])
     .setAuthor('Statify', config.logoTransparent, config.glitchLink)
     .addFields(
       { name: 'Wins :trophy:', value: all.wins, inline: true },
@@ -507,6 +534,8 @@ async function codTracker(args, msg) {
       { name: 'Score / Minute :stopwatch:', value: all.scorePerMinute.toFixed(2), inline: true },
       { name: 'Games Played :game_die:', value: all.gamesPlayed, inline: true },
     )
+    .setTimestamp()
+    .setFooter('Statify Game Stat Tracker', config.botPfp);
     msg.channel.send(embed);
 
   }).catch(err => {
@@ -516,14 +545,14 @@ async function codTracker(args, msg) {
 
 }
 
-// Sends an embed with CSGO stats
+// Sends an embed with CSGO stats (TRN)
 function csTracker(args, msg) {
   
   // Gets user info from username
   const options = {
     url: 'https://public-api.tracker.gg/v2/csgo/standard/search?platform=steam&query=' + args[2],
     headers: {
-      'TRN-Api-Key': private.TRN_API_KEY
+      'TRN-Api-Key': trnAPIKey
     }
   };
   request(options, function (error, response) { 
@@ -539,7 +568,7 @@ function csTracker(args, msg) {
     const options2 = {
       url: 'https://public-api.tracker.gg/v2/csgo/standard/profile/steam/' + userIdentifier,
       headers: {
-        'TRN-Api-Key': private.TRN_API_KEY
+        'TRN-Api-Key': trnAPIKey
       }
     };
     request(options2, function (error2, response2) { 
@@ -547,8 +576,8 @@ function csTracker(args, msg) {
       let playerData = (JSON.parse(response2.body)).data.segments[0].stats;
 
       let embed = new Discord.MessageEmbed()
-      .setColor('#00FF00')
-      .setTitle('CS:GO stats for ' + args[2])
+      .setColor('#0099ff')
+      .setTitle('<:C4:724329557817032744> CS:GO Stats for ' + args[2])
       .setAuthor('Statify', config.logoTransparent, config.glitchLink)
       .addFields(
         { name: 'K/D :dart:', value: playerData.kd.displayValue, inline: true },
@@ -561,6 +590,8 @@ function csTracker(args, msg) {
         // { name: 'Score / Minute :stopwatch:', value: all.scorePerMinute.toFixed(2), inline: true },
         // { name: 'Games Played :game_die:', value: all.gamesPlayed, inline: true },
       )
+      .setTimestamp()
+      .setFooter('Statify Game Stat Tracker', config.botPfp);
       msg.channel.send(embed);
     });
   });
