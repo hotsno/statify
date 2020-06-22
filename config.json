@@ -7,6 +7,5 @@
   "lolHelp": "Syntax for Leauge of Legends stats: `.s lol <summoner name>`. Currently only works for NA.",
   "warzoneHelp": "Syntax for CoD: Warzone stats: `.s warzone <gamertag> <platform>`.\nPlatform types: `xbl, battle` (xbl = Xbox; battle = Battle.net / Blizzard)",
   "hypixelHelp": "Syntax for Hypixel stats: `.s hypixel <Minecraft username> <game mode>`.\nGame mode types: `skywars`",
-  "csgoHelp": "Syntax for CS:GO stats: `.s csgo <Steam username>` (the one you login with).",
-  "apexHelp": "Syntax for Apex Legends stats: `.s apex <gamertag> <platform>`\nPlatform types: `psn, xbl, origin` (psn = PS4; xbl = Xbox One; origin = PC)"
+  "csgoHelp": "Syntax for CS:GO stats: `.s csgo <Steam username>` (the one you login with)."
 }
