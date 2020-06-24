@@ -27,7 +27,7 @@ const ht = new hypixelAPI({ key: hypixelAPIKey });
 // For Fortnite
 const fortniteAPIKey = private.FORTNITE_API_KEY;
 const fortniteAPI = require('fortnite');
-const ft = new fortniteAPI(fortniteAPIKey);
+const ft = new fortniteAPI(private.FORTNITE_API_KEY);
 const fortnitePlatformTypes = ['pc', 'psn', 'xbl'];
 const fortniteModeTypes = ['solo', 'duo', 'squad', 'lifetime'];
 
@@ -40,7 +40,7 @@ const aboutEmbed = new Discord.MessageEmbed()
   .setTitle('About Statify')
   .setAuthor('Statify', config.logoTransparent, config.glitchLink)
   .setDescription(config.about)
-  .setURL(config.glitchLink);
+  .setURL(config.glitchLink)
 
 // Sent with .s help command
 const helpEmbed = new Discord.MessageEmbed()
@@ -146,7 +146,7 @@ function set(args, msg) {
   let platform = null;
   let gamemode = null;
   let game = null;
-
+  
   if (!games.includes(args[2])) {
     msg.reply('you used incorrect syntax! Type `.s help set` for more info!');
     return;
@@ -187,7 +187,7 @@ function set(args, msg) {
     msg.reply(' you didn\'t use enough paramaters! Use the same syntax for `.s set <game>` as in `.s game`! Type `.s help <game>` for help.');
     return;
   }
-  
+
   nconf.use('file', { file: 'userInfo.json' });
   nconf.load();
   let id = msg.member.user.id;
@@ -231,7 +231,7 @@ function fortniteTracker(args, msg) {
       return;
     }
     let stats = data.stats[mode];
-
+    
     let embed = new Discord.MessageEmbed()
       .setColor('#0099ff')
       .setTitle('<:Fortnite:724330015348490309> Fortnite ' + mode.charAt(0).toUpperCase() + mode.slice(1) + ' Stats for ' + data.username) // Weird code capitalizes game mode
@@ -289,7 +289,7 @@ function apexTracker(args, msg){
   };
   request(options, function (error, response) { 
     if (error) throw new Error(error);
-    
+
     body = JSON.parse(response.body);
     let data = body.data;
     if(body.errors != undefined){
@@ -431,7 +431,7 @@ function lolTracker(args, msg) {
   };
   request(options, function (error, response) { 
     if (error) throw new Error(error);
-    
+
     var summonerBody = JSON.parse(response.body);
    
     var status = summonerBody.status;
@@ -651,24 +651,24 @@ function ChIDToName(id) {
 
 // LoL thing
 function mode(array) {
-    if(array.length == 0)
-        return null;
-    var modeMap = {};
-    var maxEl = array[0], maxCount = 1;
-    for(var i = 0; i < array.length; i++)
-    {
-        var el = array[i];
-        if(modeMap[el] == null)
-            modeMap[el] = 1;
-        else
-            modeMap[el]++;  
-        if(modeMap[el] > maxCount)
-        {
-            maxEl = el;
-            maxCount = modeMap[el];
-        }
-    }
-    return maxEl;
+  if(array.length == 0)
+      return null;
+  var modeMap = {};
+  var maxEl = array[0], maxCount = 1;
+  for(var i = 0; i < array.length; i++)
+  {
+      var el = array[i];
+      if(modeMap[el] == null)
+          modeMap[el] = 1;
+      else
+          modeMap[el]++;  
+      if(modeMap[el] > maxCount)
+      {
+          maxEl = el;
+          maxCount = modeMap[el];
+      }
+  }
+  return maxEl;
 }
 
 // Sends an embed with Call of Duty stats
@@ -698,6 +698,7 @@ async function codTracker(args, msg) {
     let all = data.br_all;
     let embed = new Discord.MessageEmbed()
     .setColor('#0099ff')
+    .setTitle('<:ModernWarfare:724329557515304961> Warzone stats for ' + args[2])
     .setTitle('<:ModernWarfare:724329557515304961> Warzone stats for ' + username)
     .setAuthor('Statify', config.logoTransparent, config.glitchLink)
     .addFields(
@@ -714,17 +715,15 @@ async function codTracker(args, msg) {
     .setTimestamp()
     .setFooter('Statify Game Stat Tracker', config.botPfp);
     msg.channel.send(embed);
-
   }).catch(err => {
     msg.channel.send(err);
     console.log("Call of Duty error: " + err);  
   });  
-
 }
 
 // Sends an embed with CSGO stats
 function csTracker(args, msg){
-  
+
   // Makes sure that there is a username
   if(args[2] === undefined){
     msg.channel.send('Error: Please include Steam username');
@@ -745,8 +744,9 @@ function csTracker(args, msg){
       msg.channel.send('Error: Invalid Steam username');
       return;
     }
+
     let userIdentifier = data.platformUserIdentifier;
-    
+
     // Gets csgo data with userIdentifier
     const options2 = {
       url: 'https://public-api.tracker.gg/v2/csgo/standard/profile/steam/' + userIdentifier,
@@ -754,7 +754,7 @@ function csTracker(args, msg){
         'TRN-Api-Key': trnAPIKey
       }
     };
-    request(options2, function (error2, response2) { 
+    request(options2, function (error2, response2) {
       if (error2) throw new Error(error2);
       let playerData = (JSON.parse(response2.body)).data.segments[0].stats;
 
@@ -778,5 +778,4 @@ function csTracker(args, msg){
     });
   });
 }
-
 bot.login(token);
