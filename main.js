@@ -427,11 +427,11 @@ function lolTracker(args, msg) {
   // Getting summoner info from SUMMONER-V4 API
   var options = {
     'method': 'GET',
-    'url': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + username + '?api_key=' + lolAPIKey,
+    'url': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + name + '?api_key=' + private.LEAGUE_API_KEY,
   };
   request(options, function (error, response) { 
     if (error) throw new Error(error);
-
+    
     var summonerBody = JSON.parse(response.body);
    
     var status = summonerBody.status;
@@ -446,7 +446,7 @@ function lolTracker(args, msg) {
     // Getting match info/ history from MATCH-V4 API
     var options2 = {
       'method': 'GET',
-      'url': 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?api_key=' + lolAPIKey,
+      'url': 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?api_key=' + private.LEAGUE_API_KEY,
     };
     request(options2, function (error, response2) { 
       if (error) throw new Error(error);
@@ -461,15 +461,19 @@ function lolTracker(args, msg) {
         return;
       }
 
-      // Finds all champions played, finds most common one
+      // Finds all champions played, finds most common one. Find most common position
       var champions = []
       matches.forEach(item => champions.push(item.champion));
       var mostUsedChamp = ChIDToName(mode(champions));
+
+      var lane = []
+      matches.forEach(item => lane.push(item.lane));
+      var mostCommonLane = mode(lane);
       
       // Gets info from LEAGUE-V4 API
       var options3 = {
         'method': 'GET',
-        'url': 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerId + '?api_key=' + lolAPIKey,
+        'url': 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerId + '?api_key=' + private.LEAGUE_API_KEY,
       };
       request(options3, function (error, response3) { 
         if (error) throw new Error(error);
@@ -479,10 +483,30 @@ function lolTracker(args, msg) {
         var leagueJSON = undefined;
         if (leagueJSONArray.length > 0) {
           leagueJSON = leagueJSONArray[0];
-        }
+       }
 
-        // Calls method to make league embed
-        leagueStatsEmbed(msg, summonerBody, leagueJSON, matchBody, mostUsedChamp);
+      // Makes leauge embed
+      let leagueEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('League of Legends Stats')
+        .setAuthor('Statify', config.logoTransparent, config.glitchLink)
+        .addField('Name', summonerBody.name).setTimestamp()
+        .setFooter('Statify Game Stat Tracker', config.botPfp);
+        
+      // Adds rank if player has a rank
+      if(leagueJSON != undefined){
+        leagueEmbed.addField("Rank in " + leagueJSON.queueType, leagueJSON.tier + " "  + leagueJSON.rank);
+      } 
+      leagueEmbed.addFields(
+        {name:'Summoner Level', value:summonerBody.summonerLevel, inline:true},
+        {name:'Games', value: matchBody.totalGames, inline:true},
+        {name:'Lane', value: mostCommonLane, inline:true},
+      )
+      if(mostUsedChamp != undefined){
+        leagueEmbed.addField('Most used Champion',  mostUsedChamp, true);
+      }
+        
+        msg.channel.send(leagueEmbed);
       });
     });
   });
