@@ -50,7 +50,7 @@ const helpEmbed = new Discord.MessageEmbed()
   { name: 'Syntax :tools:', value: '`.s help <command>`', inline: true },
   { name: 'Fortnite <:Fortnite:724330015348490309>', value: '`.s fortnite <Epic name>, <platform>, <game mode>` (commas necessary)', inline: true },
   { name: 'Hypixel <:Hypixel:724329557477425174>', value: '`.s hypixel <Minecraft username> <game mode>`', inline: true },
-  { name: 'League of Legends <:LoL:724329818195492989>', value: '`.s lol <summoner name>`', inline: true },
+  { name: 'League of Legends <:LoL:724329818195492989>', value: '`.s lol <summoner name> <region>`', inline: true },
   { name: 'Call of Duty: Warzone <:ModernWarfare:724329557515304961>', value: '`.s warzone <gamertag> <platform>`', inline: true },
   { name: 'CS:GO <:C4:724329557817032744>', value: '`.s csgo <Steam username>` (the one you login with)', inline: true },
   { name: 'Apex Legends <:Apex:724388810980589661>', value: '`.s apex <gamertag> <platform>`', inline: true },
@@ -161,6 +161,7 @@ function set(args, msg) {
       break;
     case 'lol':
       username = args[3];
+      platform = args[4];
       game = "lol";
       break;
     case 'warzone':
@@ -411,6 +412,7 @@ function hypixelTracker(args, msg) {
 // Gets stats from League of Legends API
 function lolTracker(args, msg) {
   let username;
+  let region;
   if(args.length == 2) { // If user is using saved player info
     let id = msg.member.user.id;
     if(nconf.get(id).lol === undefined) {
@@ -421,13 +423,14 @@ function lolTracker(args, msg) {
   }
   else { // If user is manually entering player info
     username = args[2];
+    region = args[3];
   }
   var request = require('request');
 
   // Getting summoner info from SUMMONER-V4 API
   var options = {
     'method': 'GET',
-    'url': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + username + '?api_key=' + lolAPIKey,
+    'url': 'https://'+region+'.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + username + '?api_key=' + lolAPIKey,
   };
   request(options, function (error, response) { 
     if (error) throw new Error(error);
@@ -446,7 +449,7 @@ function lolTracker(args, msg) {
     // Getting match info/ history from MATCH-V4 API
     var options2 = {
       'method': 'GET',
-      'url': 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?api_key=' + private.LEAGUE_API_KEY,
+      'url': 'https://'+region+'.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?api_key=' + private.LEAGUE_API_KEY,
     };
     request(options2, function (error, response2) { 
       if (error) throw new Error(error);
@@ -469,11 +472,15 @@ function lolTracker(args, msg) {
       var lane = []
       matches.forEach(item => lane.push(item.lane));
       var mostCommonLane = mode(lane);
+
+      var role = []
+      matches.forEach(item => role.push(item.role));
+      var mostCommonRole = mode(role);
       
       // Gets info from LEAGUE-V4 API
       var options3 = {
         'method': 'GET',
-        'url': 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerId + '?api_key=' + private.LEAGUE_API_KEY,
+        'url': 'https://'+region+'.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerId + '?api_key=' + private.LEAGUE_API_KEY,
       };
       request(options3, function (error, response3) { 
         if (error) throw new Error(error);
@@ -483,56 +490,34 @@ function lolTracker(args, msg) {
         var leagueJSON = undefined;
         if (leagueJSONArray.length > 0) {
           leagueJSON = leagueJSONArray[0];
-       }
+        }
 
-      // Makes leauge embed
-      let leagueEmbed = new Discord.MessageEmbed()
-        .setColor('#0099ff')
-        .setTitle('League of Legends Stats')
-        .setAuthor('Statify', config.logoTransparent, config.glitchLink)
-        .addField('Name', summonerBody.name).setTimestamp()
-        .setFooter('Statify Game Stat Tracker', config.botPfp);
-        
-      // Adds rank if player has a rank
-      if(leagueJSON != undefined){
-        leagueEmbed.addField("Rank in " + leagueJSON.queueType, leagueJSON.tier + " "  + leagueJSON.rank);
-      } 
-      leagueEmbed.addFields(
-        {name:'Summoner Level', value:summonerBody.summonerLevel, inline:true},
-        {name:'Games', value: matchBody.totalGames, inline:true},
-        {name:'Lane', value: mostCommonLane, inline:true},
-      )
-      if(mostUsedChamp != undefined){
-        leagueEmbed.addField('Most used Champion',  mostUsedChamp, true);
-      }
-        
+        // Makes leauge embed
+        let leagueEmbed = new Discord.MessageEmbed()
+          .setColor('#0099ff')
+          .setTitle('League of Legends Stats')
+          .setAuthor('Statify', config.logoTransparent, config.glitchLink)
+          .addField('Name', summonerBody.name).setTimestamp()
+          .setFooter('Statify Game Stat Tracker', config.botPfp);
+          
+        // Adds rank if player has a rank
+        if(leagueJSON != undefined){
+          leagueEmbed.addField("Rank in " + leagueJSON.queueType, leagueJSON.tier + " "  + leagueJSON.rank);
+        } 
+        leagueEmbed.addFields(
+          {name:'Summoner Level', value:summonerBody.summonerLevel, inline:true},
+          {name:'Games', value: matchBody.totalGames, inline:true},
+          {name:'Lane', value: mostCommonLane, inline:true},
+        )
+        if(mostUsedChamp != undefined){ leagueEmbed.addField('Most used Champion',  mostUsedChamp, true);    }
+        if(mostCommonRole != "NONE"){   leagueEmbed.addField('Preferred Position',  mostCommonRole, true);   }
+    
         msg.channel.send(leagueEmbed);
       });
     });
   });
 }
 
-// Sends an embed with League of Legends stats
-function leagueStatsEmbed(msg, summonerBody, leagueJSON, matches, mostUsedChamp) {
-  var leagueEmbed = new Discord.MessageEmbed()
-  .setColor('#0099ff')
-  .setTitle('<:LoL:724329818195492989> League of Legends Stats')
-  .setAuthor('Statify', config.logoTransparent, config.glitchLink)
-  .addField('Name', summonerBody.name);
-  
-  // Adds rank if player has a rank
-  if(leagueJSON != undefined){
-    leagueEmbed.addField("Rank in " + leagueJSON.queueType, leagueJSON.tier + " "  + leagueJSON.rank);
-  }
-  
-  leagueEmbed.addField('Summoner Level', summonerBody.summonerLevel)
-  .addField('Games', matches.totalGames)
-  .addField('Most used Champion', mostUsedChamp)
-  .setTimestamp()
-  .setFooter('Statify Game Stat Tracker', config.botPfp);
-
-  msg.channel.send(leagueEmbed);
-}
 
 // LoL thing
 function ChIDToName(id) {
@@ -780,7 +765,12 @@ function csTracker(args, msg){
     };
     request(options2, function (error2, response2) {
       if (error2) throw new Error(error2);
-      let playerData = (JSON.parse(response2.body)).data.segments[0].stats;
+      let body2 = JSON.parse(response2.body)
+      if(body2.errors != undefined){
+        msg.channel.send(body2.errors[0].message);
+        return;
+      }
+      let playerData = body2.data.segments[0].stats;
 
       let embed = new Discord.MessageEmbed()
       .setColor('#0099ff')
