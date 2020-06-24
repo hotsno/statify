@@ -427,7 +427,7 @@ function lolTracker(args, msg) {
   // Getting summoner info from SUMMONER-V4 API
   var options = {
     'method': 'GET',
-    'url': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + name + '?api_key=' + private.LEAGUE_API_KEY,
+    'url': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + username + '?api_key=' + lolAPIKey,
   };
   request(options, function (error, response) { 
     if (error) throw new Error(error);
