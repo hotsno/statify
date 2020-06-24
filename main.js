@@ -60,7 +60,9 @@ const helpEmbed = new Discord.MessageEmbed()
 // Sets bot's Discord status
 bot.on('ready', () => {
   console.log('Bot loaded');
-  bot.user.setActivity('.s', { type: 'LISTENING' });
+  let i = 0;
+  
+  bot.user.setActivity('.s in ' + i + ' servers', { type: 'LISTENING' });
 });
 
 bot.on('message', (msg) => {
