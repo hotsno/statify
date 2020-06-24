@@ -4,7 +4,7 @@
   "glitchLink": "https://glitch.com/edit/#!/statify-bot",
   "about": "Statify allows you to quickly and easily check your stats for a variety of games.",
   "fortniteHelp": "Syntax for Fortnite stats: `.s fortnite <Epic name>, <platform>, <game mode>`\nPlatform types: `psn, xbl, pc` (psn = PS4; xbl = Xbox One; pc = PC)\nGame mode types: `solo, duo, squad, lifetime`",
-  "lolHelp": "Syntax for Leauge of Legends stats: `.s lol <summoner name>`. Currently only works for NA.",
+  "lolHelp": "Syntax for Leauge of Legends stats: `.s lol <summoner name> <region>`. Available regions are BR1, EUN1, EUW1, JP1, KR, LA1, LA2, NA1, OC1, RU, TR1",
   "warzoneHelp": "Syntax for CoD: Warzone stats: `.s warzone <gamertag> <platform>`.\nPlatform types: `xbl, battle` (xbl = Xbox; battle = Battle.net / Blizzard)",
   "hypixelHelp": "Syntax for Hypixel stats: `.s hypixel <Minecraft username> <game mode>`.\nGame mode types: `skywars`",
   "csgoHelp": "Syntax for CS:GO stats: `.s csgo <Steam username>` (the one you login with).",
