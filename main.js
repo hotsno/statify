@@ -60,9 +60,19 @@ const helpEmbed = new Discord.MessageEmbed()
 // Sets bot's Discord status
 bot.on('ready', () => {
   console.log('Bot loaded');
-  let i = 0;
-  
-  bot.user.setActivity('.s in ' + i + ' servers', { type: 'LISTENING' });
+  bot.user.setActivity('.s in ' + bot.guilds.cache.size + ' servers | statify.ga', { type: 'LISTENING' });
+});
+
+// Update server count when joining a server
+bot.on('guildCreate', guild => {
+  console.log('Statify joined ' + guild.name);
+  bot.user.setActivity('.s in ' + bot.guilds.cache.size + " servers | statify.ga", { type: 'LISTENING' });
+});
+
+// Update server count when leaving a server
+bot.on('guildDelete', guild => {
+  console.log('Statify left ' + guild.name);
+  bot.user.setActivity('.s in ' + bot.guilds.cache.size + " servers | statify.ga", { type: 'LISTENING' });
 });
 
 bot.on('message', (msg) => {
