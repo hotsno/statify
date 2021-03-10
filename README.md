@@ -5,7 +5,7 @@ Game stat Discord bot with support for multiple games.
 **Add it** to your server [here!](https://discord.com/oauth2/authorize?client_id=723412441475580065&scope=bot&permissions=265216)
 
 ## Commands
-Use the prefix `.s` for all commands. 
+Use the prefix `.s` for all commands.
 
 ### Fortnite
 `.s fortnite` takes 3 parameters seperated by commas and spaces. 1) Epic username. 2) Platform (`pc, psn, xbl`). 3) Game mode (`solo, duo, squad, lifetime`).
