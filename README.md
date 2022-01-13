@@ -4,6 +4,8 @@ Game stat Discord bot with support for multiple games.
 
 **Add it** to your server [here!](https://discord.com/oauth2/authorize?client_id=723412441475580065&scope=bot&permissions=265216)
 
+**Video** [here](https://www.youtube.com/watch?v=F128VgbFFOU)
+
 ## Commands
 Use the prefix `.s` for all commands.
 
